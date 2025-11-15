@@ -1,3 +1,53 @@
+[project]
+name = "backtesting"
+version = "0.3.3"
+description = "Backtest trading strategies in Python"
+authors = [
+    {name = "Zach Lûster"}
+]
+license = {text = "AGPL-3.0"}
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.3.4",
+    "pandas>=2.3.3",
+    "bokeh>=3.8.1",
+]
+
+[project.optional-dependencies]
+test = [
+    "matplotlib>=3.10.7",
+    "scikit-learn>=1.7.2",
+    "sambo>=1.25.2",
+    "tqdm>=4.67.1",
+    "ipywidgets>=8.1.8",
+]
+doc = [
+    "pdoc3>=0.11.6",
+    "jupytext>=1.18.1",
+    "nbconvert>=7.16.6",
+    "ipykernel>=7.1.0",
+    "jupyter-client>=8.6.3",
+]
+
+[project.urls]
+Homepage = "https://kernc.github.io/backtesting.py/"
+Documentation = "https://kernc.github.io/backtesting.py/doc/backtesting/"
+Source = "https://github.com/kernc/backtesting.py/"
+Tracker = "https://github.com/kernc/backtesting.py/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.5",
+    "coverage>=7.11.3",
+    "mypy>=1.18.2",
+    "pytest>=9.0.1",
+]
+
 [tool.ruff]
 exclude = [
     '.git',
@@ -35,4 +85,36 @@ select = [
 ignore-names = [
     'l',
     'h',
+]
+
+[tool.mypy]
+warn_unused_ignores = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+
+[tool.coverage.run]
+parallel = true
+concurrency = ["multiprocessing", "thread"]
+disable_warnings = ["no-data-collected"]
+source = ["backtesting", "doc/examples"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "^\\s*continue\\b",
+    "^\\s*return\\b",
+    "^\\s*raise\\b",
+    "^\\s*except\\b",
+    "^\\s*warnings\\.warn\\(",
+    "^\\s*warn\\(",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["backtesting"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.git",
+    "/.eggs",
+    "/__pycache__",
+    "/doc/examples",
 ]
