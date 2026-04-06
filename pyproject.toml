@@ -48,6 +48,14 @@ dev = [
     "pytest>=9.0.1",
 ]
 
+[tool.pytest.ini_options]
+minversion = "9.0"
+addopts = ["-ra", "-q", "--strict-markers", "--import-mode=importlib"]
+testpaths = ["tests"]
+pythonpath = ["src"]
+xfail_strict = true
+filterwarnings = ["error"]
+
 [tool.ruff]
 exclude = [
     '.git',
@@ -55,6 +63,9 @@ exclude = [
     '__pycache__',
     'doc/examples',
 ]
+line-length = 100
+
+[tool.ruff.lint]
 ignore = [
     'UP006',
     'UP007',
@@ -66,18 +77,22 @@ ignore = [
     'B011',
     'RUF002',
 ]
-line-length = 100
 select = [
-    'I',
     'E',
-    'F',
     'W',
+    'F',
+    'I',
     'UP',
+    'B',
+    'SIM',
+    'C4',
+    'RUF',
+    'PERF',
+    'TC',
+    'PTH',
     'N',
     'C',
-    'B',
     'T',
-    'RUF',
     'YTT',
 ]
 
@@ -96,7 +111,7 @@ ignore_missing_imports = true
 parallel = true
 concurrency = ["multiprocessing", "thread"]
 disable_warnings = ["no-data-collected"]
-source = ["backtesting", "doc/examples"]
+source = ["src/backtesting", "doc/examples"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -109,7 +124,7 @@ exclude_lines = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["backtesting"]
+packages = ["src/backtesting"]
 
 [tool.hatch.build.targets.sdist]
 exclude = [
