@@ -1,5 +1,8 @@
 # Backtesting.py
 
+> **Last Updated**: 2026-04-06T16:25:30Z  \
+> **Git Hash**: `7ba9fd2`
+
 **Lightweight backtesting framework for Python trading strategies**
 
 - **Repository**: [github.com/kernc/backtesting.py](https://github.com/kernc/backtesting.py)
