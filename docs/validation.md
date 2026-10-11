@@ -219,26 +219,26 @@ Unsuccessful rows are retained as historical compatibility attempts; they are no
 
 | Command | Exit | Seconds | Evidence |
 |---|---:|---:|---|
-| `uv lock --upgrade --python 3.15` | 0 | 0.41 | [log](../../docs/maintenance-2026-10-12/backtesting.py-lock-3.15.log) |
-| `uv sync --all-extras --all-groups --python 3.15 --no-build --no-install-project` | 2 | 7.7 | [log](../../docs/maintenance-2026-10-12/backtesting.py-wheel-probe-3.15.log) |
-| `uv lock --upgrade --python 3.14` | 0 | 0.57 | [log](../../docs/maintenance-2026-10-12/backtesting.py-lock-3.14.log) |
-| `uv sync --all-extras --all-groups --python 3.14 --no-build --no-install-project` | 0 | 1.07 | [log](../../docs/maintenance-2026-10-12/backtesting.py-wheel-probe-3.14.log) |
-| `uv sync --all-extras --all-groups --python 3.14` | 0 | 0.72 | [log](../../docs/maintenance-2026-10-12/backtesting.py-sync-3.14.log) |
-| `uv build --python 3.14` | 0 | 2.49 | [log](../../docs/maintenance-2026-10-12/backtesting.py-build.log) |
-| `/Users/alex/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14 -m compileall -q src` | 0 | 0.08 | [log](../../docs/maintenance-2026-10-12/backtesting.py-compile.log) |
-| `uv run --no-sync python -m backtesting.test` | 0 | 52.6 | [log](../../docs/maintenance-2026-10-12/backtesting.py-tests.log) |
-| `uv run --no-sync python -m compileall -q src` | 0 | 0.13 | [log](../../docs/maintenance-2026-10-12/backtesting.py-compile-final.log) |
-| `uv build --python 3.14` | 0 | 1.31 | [log](../../docs/maintenance-2026-10-12/backtesting.py-build-final.log) |
-| `uv run --no-sync python -c import sys,importlib.metadata,json; print(sys.version); print(json.dumps({d.metadata["Name"]: d.version for d in importlib.metadata.distributions()},indent=2,sort_keys=True))` | 0 | 0.18 | [log](../../docs/maintenance-2026-10-12/backtesting.py-versions-final.log) |
-| `uv sync --directory /tmp/trading-python315-probes/backtesting.py --all-extras --all-groups --python 3.15` | 0 | 1.63 | [log](../../docs/maintenance-2026-10-12/backtesting.py-python315-source-probe.log) |
-| `uv lock --upgrade --python 3.15` | 0 | 0.41 | [log](../../docs/maintenance-2026-10-12/backtesting.py-lock-python315-source-supported.log) |
-| `uv sync --all-extras --all-groups --python 3.15` | 0 | 5.99 | [log](../../docs/maintenance-2026-10-12/backtesting.py-sync-python315-source-supported.log) |
-| `uv run --no-sync python -m backtesting.test` | 0 | 98.19 | [log](../../docs/maintenance-2026-10-12/backtesting.py-tests-python315-source-supported.log) |
-| `uv run --no-sync python -m compileall -q src` | 0 | 0.15 | [log](../../docs/maintenance-2026-10-12/backtesting.py-compile-selected-python.log) |
-| `uv build --python 3.15` | 0 | 2.39 | [log](../../docs/maintenance-2026-10-12/backtesting.py-build-selected-python.log) |
-| `uv run --no-sync python -c import sys,importlib.metadata,json; print(sys.version); print(json.dumps({d.metadata["Name"]:d.version for d in importlib.metadata.distributions()},indent=2,sort_keys=True))` | 0 | 0.19 | [log](../../docs/maintenance-2026-10-12/backtesting.py-versions-final.log) |
+| `uv lock --upgrade --python 3.15` | 0 | 0.41 | [check record](maintenance/index.html) |
+| `uv sync --all-extras --all-groups --python 3.15 --no-build --no-install-project` | 2 | 7.7 | [check record](maintenance/index.html) |
+| `uv lock --upgrade --python 3.14` | 0 | 0.57 | [check record](maintenance/index.html) |
+| `uv sync --all-extras --all-groups --python 3.14 --no-build --no-install-project` | 0 | 1.07 | [check record](maintenance/index.html) |
+| `uv sync --all-extras --all-groups --python 3.14` | 0 | 0.72 | [check record](maintenance/index.html) |
+| `uv build --python 3.14` | 0 | 2.49 | [check record](maintenance/index.html) |
+| `/Users/alex/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14 -m compileall -q src` | 0 | 0.08 | [check record](maintenance/index.html) |
+| `uv run --no-sync python -m backtesting.test` | 0 | 52.6 | [check record](maintenance/index.html) |
+| `uv run --no-sync python -m compileall -q src` | 0 | 0.13 | [check record](maintenance/index.html) |
+| `uv build --python 3.14` | 0 | 1.31 | [check record](maintenance/index.html) |
+| `uv run --no-sync python -c import sys,importlib.metadata,json; print(sys.version); print(json.dumps({d.metadata["Name"]: d.version for d in importlib.metadata.distributions()},indent=2,sort_keys=True))` | 0 | 0.18 | [check record](maintenance/index.html) |
+| `uv sync --directory /tmp/trading-python315-probes/backtesting.py --all-extras --all-groups --python 3.15` | 0 | 1.63 | [check record](maintenance/index.html) |
+| `uv lock --upgrade --python 3.15` | 0 | 0.41 | [check record](maintenance/index.html) |
+| `uv sync --all-extras --all-groups --python 3.15` | 0 | 5.99 | [check record](maintenance/index.html) |
+| `uv run --no-sync python -m backtesting.test` | 0 | 98.19 | [check record](maintenance/index.html) |
+| `uv run --no-sync python -m compileall -q src` | 0 | 0.15 | [check record](maintenance/index.html) |
+| `uv build --python 3.15` | 0 | 2.39 | [check record](maintenance/index.html) |
+| `uv run --no-sync python -c import sys,importlib.metadata,json; print(sys.version); print(json.dumps({d.metadata["Name"]:d.version for d in importlib.metadata.distributions()},indent=2,sort_keys=True))` | 0 | 0.19 | [check record](maintenance/index.html) |
 
-The versions-final log records the exact interpreter patch release and every installed dependency version. The machine-readable [result](../../docs/maintenance-2026-10-12/backtesting.py-result.json) includes branch/default ancestry, status, artifacts and unresolved checks.
+The versions-final log records the exact interpreter patch release and every installed dependency version. The machine-readable [verification record](maintenance/verification.json) includes branch/default ancestry, status, artifacts and unresolved checks.
 
 ## Dependency floor refresh
 
