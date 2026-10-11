@@ -13,7 +13,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from copy import copy
 from difflib import get_close_matches
-from functools import lru_cache, partial
+from functools import cached_property, lru_cache, partial
 from itertools import chain, product, repeat
 from math import copysign
 from numbers import Number
@@ -153,7 +153,7 @@ class Strategy(metaclass=ABCMeta):
         is_arraylike = bool(value is not None and value.shape)
 
         # Optionally flip the array if the user returned e.g. `df.values`
-        if is_arraylike and np.argmax(value.shape) == 0:
+        if is_arraylike and value.shape[0] == len(self._data):
             value = value.T
 
         if isinstance(name, list) and (np.atleast_2d(value).shape[0] != len(name)):
@@ -161,7 +161,7 @@ class Strategy(metaclass=ABCMeta):
                 f'Length of `name=` ({len(name)}) must agree with the number '
                 f'of arrays the indicator returns ({value.shape[0]}).')
 
-        if not is_arraylike or not 1 <= value.ndim <= 2 or value.shape[-1] != len(self._data.Close):
+        if not is_arraylike or not 1 <= value.ndim <= 2 or value.shape[-1] != len(self._data):
             raise ValueError(
                 'Indicators must return (optionally a tuple of) numpy.arrays of same '
                 f'length as `data` (data shape: {self._data.Close.shape}; indicator "{name}" '
@@ -344,17 +344,17 @@ class Position:
     @property
     def size(self) -> float:
         """Position size in units of asset. Negative if position is short."""
-        return sum(trade.size for trade in self.__broker.trades)
+        return self.__broker._position_size
 
     @property
     def pl(self) -> float:
         """Profit (positive) or loss (negative) of the current position in cash units."""
-        return sum(trade.pl for trade in self.__broker.trades)
+        return self.__broker._position_unrealized_pl
 
     @property
     def pl_pct(self) -> float:
         """Profit (positive) or loss (negative) of the current position in percent."""
-        total_invested = sum(trade.entry_price * abs(trade.size) for trade in self.__broker.trades)
+        total_invested = self.__broker._position_initial_value
         return (self.pl / total_invested) * 100 if total_invested else 0
 
     @property
@@ -395,7 +395,7 @@ class Order:
     All placed orders are [Good 'Til Canceled].
 
     [filled]: https://www.investopedia.com/terms/f/fill.asp
-    [Good 'Til Canceled]: https://www.investopedia.com/terms/g/gtc.asp
+    [Good 'Til Canceled]: https://en.wikipedia.org/wiki/Order_(exchange)#Time_in_force
     """
     def __init__(self, broker: '_Broker',
                  size: float,
@@ -452,7 +452,8 @@ class Order:
         Order size (negative for short orders).
 
         If size is a value between 0 and 1, it is interpreted as a fraction of current
-        available liquidity (cash plus `Position.pl` minus used margin).
+        available liquidity (cash plus `Position.pl` minus used margin) to allocate
+        to the order (not the maximum account risk if the order's stop-loss is hit).
         A value greater than or equal to 1 indicates an absolute number of units.
         """
         return self.__size
@@ -463,8 +464,8 @@ class Order:
         Order limit price for [limit orders], or None for [market orders],
         which are filled at next available price.
 
-        [limit orders]: https://www.investopedia.com/terms/l/limitorder.asp
-        [market orders]: https://www.investopedia.com/terms/m/marketorder.asp
+        [limit orders]: https://en.wikipedia.org/wiki/Order_(exchange)#Limit_order
+        [market orders]: https://en.wikipedia.org/wiki/Order_(exchange)#Market_order
         """
         return self.__limit_price
 
@@ -474,7 +475,7 @@ class Order:
         Order stop price for [stop-limit/stop-market][_] order,
         otherwise None if no stop was set, or the stop price has already been hit.
 
-        [_]: https://www.investopedia.com/terms/s/stoporder.asp
+        [_]: https://en.wikipedia.org/wiki/Order_(exchange)#Stop_orders
         """
         return self.__stop_price
 
@@ -532,7 +533,7 @@ class Order:
         You can modify contingent orders through `Trade.sl` and `Trade.tp`.
 
         [contingent]: https://www.investopedia.com/terms/c/contingentorder.asp
-        [OCO]: https://www.investopedia.com/terms/o/oco.asp
+        [OCO]: https://en.wikipedia.org/wiki/Order_(exchange)#One_cancels_other_orders
         """
         return bool((parent := self.__parent_trade) and
                     (self is parent._sl_order or
@@ -811,10 +812,28 @@ class _Broker:
 
         return order
 
+    @cached_property
+    def _position_size(self) -> int:
+        return sum(int(trade.size) for trade in self.trades)
+
+    @cached_property
+    def _position_initial_value(self) -> float:
+        return sum(abs(trade.size) * trade.entry_price for trade in self.trades)
+
+    @cached_property
+    def _position_unrealized_pl(self) -> float:
+        return (self.last_price * self._position_size -
+                sum(trade.size * trade.entry_price for trade in self.trades))
+
+    def _trades_cache_clear(self):
+        self.__dict__.pop(self.__class__._position_size.func.__name__, None)
+        self.__dict__.pop(self.__class__._position_initial_value.func.__name__, None)
+        self.__dict__.pop(self.__class__._position_unrealized_pl.func.__name__, None)
+
     @property
     def last_price(self) -> float:
         """ Price at the last (current) close. """
-        return self._data.Close[-1]
+        return self._data._current_value('Close')
 
     def _adjusted_price(self, size=None, price=None) -> float:
         """
@@ -825,7 +844,7 @@ class _Broker:
 
     @property
     def equity(self) -> float:
-        return self._cash + sum(trade.pl for trade in self.trades)
+        return self._cash + self._position_unrealized_pl
 
     @property
     def margin_available(self) -> float:
@@ -834,6 +853,9 @@ class _Broker:
         return max(0, self.equity - margin_used)
 
     def next(self):
+        # Reset cached value here due to price change on every bar
+        self.__dict__.pop(self.__class__._position_unrealized_pl.func.__name__, None)
+
         i = self._i = len(self._data) - 1
         self._process_orders()
 
@@ -845,14 +867,14 @@ class _Broker:
         if equity <= 0:
             assert self.margin_available <= 0
             for trade in self.trades:
-                self._close_trade(trade, self._data.Close[-1], i)
+                self._close_trade(trade, self.last_price, i)
             self._cash = 0
             self._equity[i:] = 0
             raise _OutOfMoneyError
 
     def _process_orders(self):
         data = self._data
-        open, high, low = data.Open[-1], data.High[-1], data.Low[-1]
+        open, high, low = data._current_value("Open"), data._current_value("High"), data._current_value("Low")
         reprocess_orders = False
 
         # Process orders
@@ -916,8 +938,11 @@ class _Broker:
                 if trade in self.trades:
                     self._reduce_trade(trade, price, size, time_index)
                     assert order.size != -_prev_size or trade not in self.trades
-                    if price == stop_price:
+                    if order is trade._sl_order:
                         # Set SL back on the order for stats._trades["SL"]
+                        # (it was cleared above when the stop was hit). Restore it
+                        # even when the SL was gapped through and the fill price is
+                        # worse than the stop price (i.e. `price != stop_price`).
                         trade._sl_order._replace(stop_price=stop_price)
                 if order in (trade._sl_order,
                              trade._tp_order):
@@ -1030,6 +1055,7 @@ class _Broker:
     def _reduce_trade(self, trade: Trade, price: float, size: float, time_index: int):
         assert trade.size * size < 0
         assert abs(trade.size) >= abs(size)
+        self._trades_cache_clear()
 
         size_left = trade.size + size
         assert size_left * trade.size >= 0
@@ -1050,6 +1076,7 @@ class _Broker:
         self._close_trade(close_trade, price, time_index)
 
     def _close_trade(self, trade: Trade, price: float, time_index: int):
+        self._trades_cache_clear()
         self.trades.remove(trade)
         if trade._sl_order:
             self.orders.remove(trade._sl_order)
@@ -1071,6 +1098,7 @@ class _Broker:
                     sl: Optional[float], tp: Optional[float], time_index: int, tag):
         trade = Trade(self, size, price, time_index, tag)
         self.trades.append(trade)
+        self._trades_cache_clear()
         # Apply broker commission at trade open
         self._cash -= self._commission(size, price)
         # Create SL/TP (bracket) orders.
@@ -1374,7 +1402,7 @@ class Backtest:
         `backtesting.backtesting.Backtest.run`-returned results series,
         or a function that accepts this series object and returns a number;
         the higher the better. By default, the method maximizes
-        Van Tharp's [System Quality Number](https://google.com/search?q=System+Quality+Number).
+        Van Tharp's [System Quality Number](https://altpower.app/?q=System+Quality+Number).
 
         `method` is the optimization method. Currently two methods are supported:
 
