@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Validation evidence: backtesting.py</title><style>
+:root{color-scheme:light dark;--bg:#f6f8fa;--paper:#fff;--fg:#182332;--muted:#526274;--line:#d9e0e7;--accent:#1769aa}
+@media(prefers-color-scheme:dark){:root{--bg:#111820;--paper:#192330;--fg:#e6edf3;--muted:#a0b3c5;--line:#344354;--accent:#71b7ee}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 system-ui,-apple-system,sans-serif}
+header{border-bottom:1px solid var(--line);padding:16px max(24px,calc((100vw - 1120px)/2));background:var(--paper);font-size:14px}
+main{max-width:1120px;margin:32px auto;padding:40px 48px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
+h1,h2,h3,h4{line-height:1.3;scroll-margin-top:24px}h1{font-size:2.1rem}h2{margin-top:2.5em;border-bottom:1px solid var(--line);padding-bottom:.35em}h3{margin-top:1.8em}
+a{color:var(--accent);text-underline-offset:3px}code{font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--bg);border-radius:4px;padding:2px 5px}pre{overflow:auto;border:1px solid var(--line);background:var(--bg);padding:16px;border-radius:7px}pre code{padding:0;background:none}
+table{border-collapse:collapse;width:100%;display:block;overflow-x:auto;font-size:14px}th,td{border:1px solid var(--line);padding:9px 12px;text-align:left}th{background:var(--bg)}blockquote{border-left:4px solid var(--accent);margin:16px 0;padding:4px 20px;color:var(--muted)}
+.diagram{overflow-x:auto;margin:24px 0;padding:20px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#182332}.mermaid{border:0;background:none;text-align:center}.mermaid svg{height:auto;max-width:100%}details{font-size:13px;color:#526274}.headerlink{margin-left:.4em;font-size:.7em;text-decoration:none;color:var(--muted)}
+@media(max-width:740px){main{margin:0;padding:24px 18px;border:0;border-radius:0}h1{font-size:1.7rem}.diagram{padding:8px}}
+@media print{header,details,.headerlink{display:none}body,main{background:#fff;color:#000;border:0;margin:0;padding:0}a{color:#000}.diagram,pre{break-inside:avoid}}
+</style></head><body><header>Engineering documentation · <a href="validation.md">Markdown source</a></header><main><h1 id="validation-evidence-backtestingpy">Validation evidence: backtesting.py<a class="headerlink" href="#validation-evidence-backtestingpy" title="Permanent link">&para;</a></h1>
+<p>Run date: 2026-10-12. Branch: <code>feature/ayu_develop</code>. Interpreter: <code>3.15.0 (main, Oct  9 2026, 15:11:47) [Clang 22.1.3 ]</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lock</td>
+<td>passed</td>
+</tr>
+<tr>
+<td>sync</td>
+<td>passed</td>
+</tr>
+<tr>
+<td>compile</td>
+<td>passed</td>
+</tr>
+<tr>
+<td>build</td>
+<td>passed</td>
+</tr>
+<tr>
+<td>tests</td>
+<td>passed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="current-result-and-compatibility-decisions">Current result and compatibility decisions<a class="headerlink" href="#current-result-and-compatibility-decisions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The existing package unittest suite is authoritative; the README lookup was adjusted for src layout. Package CSV and JavaScript resources remain beside the package.</li>
+<li>Python 3.15 is supported after allowing the current PyYAML release to build from source; absence of a wheel alone was not treated as an incompatibility.</li>
+</ul>
+<p>Current unresolved checks:</p>
+<p>All supplied checks recorded below passed.</p>
+<h2 id="latest-full-suite-output">Latest full-suite output<a class="headerlink" href="#latest-full-suite-output" title="Permanent link">&para;</a></h2>
+<pre><code class="language-text">0&lt;?, ?bar/s]
+
+ok
+test_file_size (backtesting.test._test.TestPlot.test_file_size) ... 1.5387190000000004
+
+Backtest.run:   0%|          | 0/2118 [00:00&lt;?, ?bar/s]
+
+ok
+test_hide_legend (backtesting.test._test.TestPlot.test_hide_legend) ...
+Backtest.run:   0%|          | 0/70 [00:00&lt;?, ?bar/s]
+
+ok
+test_indicator_color (backtesting.test._test.TestPlot.test_indicator_color) ...
+Backtest.run:   0%|          | 0/2147 [00:00&lt;?, ?bar/s]
+
+ok
+test_indicator_name (backtesting.test._test.TestPlot.test_indicator_name) ...
+Backtest.run:   0%|          | 0/2147 [00:00&lt;?, ?bar/s]
+
+ok
+test_indicator_scatter (backtesting.test._test.TestPlot.test_indicator_scatter) ...
+Backtest.run:   0%|          | 0/2147 [00:00&lt;?, ?bar/s]
+
+ok
+test_params (backtesting.test._test.TestPlot.test_params) ...
+Backtest.run:   0%|          | 0/70 [00:00&lt;?, ?bar/s]
+
+ok
+test_plot_before_run (backtesting.test._test.TestPlot.test_plot_before_run) ... ok
+test_preview (backtesting.test._test.TestPlot.test_preview) ...
+Backtest.run:   0%|          | 0/2118 [00:00&lt;?, ?bar/s]
+
+ok
+test_range_axis (backtesting.test._test.TestPlot.test_range_axis) ...
+Backtest.run:   0%|          | 0/70 [00:00&lt;?, ?bar/s]
+
+ok
+test_resample (backtesting.test._test.TestPlot.test_resample) ...
+Backtest.run:   0%|          | 0/2118 [00:00&lt;?, ?bar/s]
+
+ok
+test_resample_trades_vectorized (backtesting.test._test.TestPlot.test_resample_trades_vectorized)
+Vectorized trade resampling produces correct weighted returns and bar indices. ...
+Backtest.run:   0%|          | 0/2118 [00:00&lt;?, ?bar/s]
+
+ok
+test_resolutions (backtesting.test._test.TestPlot.test_resolutions) ...
+Backtest.run:   0%|          | 0/1 [00:00&lt;?, ?bar/s]
+
+
+Backtest.run:   0%|          | 0/1 [00:00&lt;?, ?bar/s]
+
+
+Backtest.run:   0%|          | 0/1 [00:00&lt;?, ?bar/s]
+
+
+Backtest.run:   0%|          | 0/1 [00:00&lt;?, ?bar/s]
+
+
+Backtest.run: 0bar [00:00, ?bar/s]
+
+
+Backtest.run: 0bar [00:00, ?bar/s]
+
+
+Backtest.run: 0bar [00:00, ?bar/s]
+
+ok
+test_wellknown (backtesting.test._test.TestPlot.test_wellknown) ...
+Backtest.run:   0%|          | 0/2147 [00:00&lt;?, ?bar/s]
+
+ok
+test_cancel_orders (backtesting.test._test.TestRegressions.test_cancel_orders) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_gh_521 (backtesting.test._test.TestRegressions.test_gh_521) ...
+Backtest.run:   0%|          | 0/4 [00:00&lt;?, ?bar/s]
+
+ok
+test_optimize_datetime_index_with_timezone (backtesting.test._test.TestRegressions.test_optimize_datetime_index_with_timezone) ... /Users/alex/workspaces/trading/backtesting.py/src/backtesting/backtesting.py:1639: RuntimeWarning: If you want to use multi-process optimization with `multiprocessing.get_start_method() == 'spawn'` (e.g. on Windows),set `backtesting.Pool = multiprocessing.Pool` (or of the desired context) and hide `bt.optimize()` call behind a `if __name__ == '__main__'` guard. Currently using thread-based paralellism, which might be slightly slower for non-numpy / non-GIL-releasing code. See https://github.com/kernc/backtesting.py/issues/1256
+  output = _optimize_grid()
+
+Backtest.optimize:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+
+Backtest.run:   0%|          | 0/96 [00:00&lt;?, ?bar/s][A
+
+                                                     [A
+
+
+Backtest.run:   0%|          | 0/96 [00:00&lt;?, ?bar/s]
+
+ok
+test_optimize_range_index (backtesting.test._test.TestRegressions.test_optimize_range_index) ... /Users/alex/workspaces/trading/backtesting.py/src/backtesting/backtesting.py:1639: RuntimeWarning: If you want to use multi-process optimization with `multiprocessing.get_start_method() == 'spawn'` (e.g. on Windows),set `backtesting.Pool = multiprocessing.Pool` (or of the desired context) and hide `bt.optimize()` call behind a `if __name__ == '__main__'` guard. Currently using thread-based paralellism, which might be slightly slower for non-numpy / non-GIL-releasing code. See https://github.com/kernc/backtesting.py/issues/1256
+  output = _optimize_grid()
+
+Backtest.optimize:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+
+Backtest.run:   0%|          | 0/96 [00:00&lt;?, ?bar/s][A
+
+                                                     [A
+
+
+Backtest.run:   0%|          | 0/96 [00:00&lt;?, ?bar/s]
+
+ok
+test_sl_always_before_tp (backtesting.test._test.TestRegressions.test_sl_always_before_tp) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_sl_tp_values_in_trades_df (backtesting.test._test.TestRegressions.test_sl_tp_values_in_trades_df) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_sl_value_in_trades_df_when_gapped_through (backtesting.test._test.TestRegressions.test_sl_value_in_trades_df_when_gapped_through) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_stats_annualized (backtesting.test._test.TestRegressions.test_stats_annualized) ...
+Backtest.run:   0%|          | 0/416 [00:00&lt;?, ?bar/s]
+
+ok
+test_stop_entry_and_tp_in_same_bar (backtesting.test._test.TestRegressions.test_stop_entry_and_tp_in_same_bar) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_trade_on_close_closes_trades_on_close (backtesting.test._test.TestRegressions.test_trade_on_close_closes_trades_on_close) ...
+Backtest.run:   0%|          | 0/4 [00:00&lt;?, ?bar/s]
+
+
+Backtest.run:   0%|          | 0/4 [00:00&lt;?, ?bar/s]
+
+ok
+test_trades_dates_match_prices (backtesting.test._test.TestRegressions.test_trades_dates_match_prices) ...
+Backtest.run:   0%|          | 0/4970 [00:00&lt;?, ?bar/s]
+
+ok
+test_autoclose_trades_on_finish (backtesting.test._test.TestStrategy.test_autoclose_trades_on_finish) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_broker_exclusive_orders (backtesting.test._test.TestStrategy.test_broker_exclusive_orders) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_broker_hedging (backtesting.test._test.TestStrategy.test_broker_hedging) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_close_trade_leaves_needsize_0 (backtesting.test._test.TestStrategy.test_close_trade_leaves_needsize_0) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_order_tag (backtesting.test._test.TestStrategy.test_order_tag) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_position (backtesting.test._test.TestStrategy.test_position) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_stop_limit_order_price_is_stop_price (backtesting.test._test.TestStrategy.test_stop_limit_order_price_is_stop_price) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_trade_multiple_close (backtesting.test._test.TestStrategy.test_trade_multiple_close) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_as_str (backtesting.test._test.TestUtil.test_as_str) ... ok
+test_indicators_picklable (backtesting.test._test.TestUtil.test_indicators_picklable) ...
+Backtest.run:   0%|          | 0/10 [00:00&lt;?, ?bar/s]
+
+ok
+test_pandas_accessors (backtesting.test._test.TestUtil.test_pandas_accessors) ...
+Backtest.run:   0%|          | 0/19 [00:00&lt;?, ?bar/s]
+
+ok
+test_patch (backtesting.test._test.TestUtil.test_patch) ... ok
+
+----------------------------------------------------------------------
+Ran 81 tests in 89.498s
+
+OK (skipped=1)
+/Users/alex/.local/share/uv/python/cpython-3.15.0-macos-aarch64-none/lib/python3.15/multiprocessing/resource_tracker.py:475: UserWarning: resource_tracker: There appear to be 4 leaked semaphore objects to clean up at shutdown: {'/mp-r8609xrp', '/mp-yn690y8b', '/mp-c7ge4fvm', '/mp-fe5no1h6'}
+  warnings.warn(
+/Users/alex/.local/share/uv/python/cpython-3.15.0-macos-aarch64-none/lib/python3.15/multiprocessing/resource_tracker.py:491: UserWarning: resource_tracker: '/mp-c7ge4fvm': [Errno 2] No such file or directory
+  warnings.warn('resource_tracker: %r: %s' % (name, e))
+
+</code></pre>
+<h2 id="exact-commands-and-exit-codes">Exact commands and exit codes<a class="headerlink" href="#exact-commands-and-exit-codes" title="Permanent link">&para;</a></h2>
+<p>Unsuccessful rows are retained as historical compatibility attempts; they are not claims that a current passing check remains blocked. Source-build probes use isolated temporary copies to preserve the selected repository environment.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th style="text-align: right;">Exit</th>
+<th style="text-align: right;">Seconds</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uv lock --upgrade --python 3.15</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.41</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-lock-3.15.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv sync --all-extras --all-groups --python 3.15 --no-build --no-install-project</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">7.7</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-wheel-probe-3.15.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv lock --upgrade --python 3.14</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.57</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-lock-3.14.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv sync --all-extras --all-groups --python 3.14 --no-build --no-install-project</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.07</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-wheel-probe-3.14.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv sync --all-extras --all-groups --python 3.14</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.72</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-sync-3.14.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv build --python 3.14</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.49</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-build.log">log</a></td>
+</tr>
+<tr>
+<td><code>/Users/alex/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14 -m compileall -q src</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.08</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-compile.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv run --no-sync python -m backtesting.test</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">52.6</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-tests.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv run --no-sync python -m compileall -q src</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.13</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-compile-final.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv build --python 3.14</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.31</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-build-final.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv run --no-sync python -c import sys,importlib.metadata,json; print(sys.version); print(json.dumps({d.metadata["Name"]: d.version for d in importlib.metadata.distributions()},indent=2,sort_keys=True))</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.18</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-versions-final.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv sync --directory /tmp/trading-python315-probes/backtesting.py --all-extras --all-groups --python 3.15</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.63</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-python315-source-probe.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv lock --upgrade --python 3.15</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.41</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-lock-python315-source-supported.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv sync --all-extras --all-groups --python 3.15</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.99</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-sync-python315-source-supported.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv run --no-sync python -m backtesting.test</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">98.19</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-tests-python315-source-supported.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv run --no-sync python -m compileall -q src</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.15</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-compile-selected-python.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv build --python 3.15</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.39</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-build-selected-python.log">log</a></td>
+</tr>
+<tr>
+<td><code>uv run --no-sync python -c import sys,importlib.metadata,json; print(sys.version); print(json.dumps({d.metadata["Name"]:d.version for d in importlib.metadata.distributions()},indent=2,sort_keys=True))</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.19</td>
+<td><a href="../../docs/maintenance-2026-10-12/backtesting.py-versions-final.log">log</a></td>
+</tr>
+</tbody>
+</table>
+<p>The versions-final log records the exact interpreter patch release and every installed dependency version. The machine-readable <a href="../../docs/maintenance-2026-10-12/backtesting.py-result.json">result</a> includes branch/default ancestry, status, artifacts and unresolved checks.</p>
+<h2 id="dependency-floor-refresh">Dependency floor refresh<a class="headerlink" href="#dependency-floor-refresh" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The table records the initial metadata refresh. Later compatibility constraints and vendor sources are explained above and the final authoritative requirements are in <a href="../pyproject.toml">pyproject.toml</a> and <a href="../uv.lock">uv.lock</a>. No test cases were added, removed or disabled. Existing deprecated-API cases retain their assertions while explicitly checking the documented warning.</p></main>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@12.1.0/dist/mermaid.esm.min.mjs';
+mermaid.initialize({startOnLoad:true,securityLevel:'strict',theme:'default',flowchart:{useMaxWidth:true},sequence:{useMaxWidth:true}});
+</script></body></html>

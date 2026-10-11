@@ -1164,7 +1164,7 @@ class TestDocs(TestCase):
 
     def test_readme_contains_stats_keys(self):
         with open(os.path.join(os.path.dirname(__file__),
-                               '..', '..', 'README.md')) as f:
+                               '..', '..', '..', 'README.md')) as f:
             readme = f.read()
         stats = Backtest(SHORT_DATA, SmaCross).run()
         for key in stats.index:
