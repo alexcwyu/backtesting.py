@@ -1,19 +1,12 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Current uv development workflow</title><style>
-:root{color-scheme:light dark;--bg:#f6f8fa;--paper:#fff;--fg:#182332;--muted:#526274;--line:#d9e0e7;--accent:#1769aa}
-@media(prefers-color-scheme:dark){:root{--bg:#111820;--paper:#192330;--fg:#e6edf3;--muted:#a0b3c5;--line:#344354;--accent:#71b7ee}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 system-ui,-apple-system,sans-serif}
-header{border-bottom:1px solid var(--line);padding:16px max(24px,calc((100vw - 1120px)/2));background:var(--paper);font-size:14px}
-main{max-width:1120px;margin:32px auto;padding:40px 48px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
-h1,h2,h3,h4{line-height:1.3;scroll-margin-top:24px}h1{font-size:2.1rem}h2{margin-top:2.5em;border-bottom:1px solid var(--line);padding-bottom:.35em}h3{margin-top:1.8em}
-a{color:var(--accent);text-underline-offset:3px}code{font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--bg);border-radius:4px;padding:2px 5px}pre{overflow:auto;border:1px solid var(--line);background:var(--bg);padding:16px;border-radius:7px}pre code{padding:0;background:none}
-table{border-collapse:collapse;width:100%;display:block;overflow-x:auto;font-size:14px}th,td{border:1px solid var(--line);padding:9px 12px;text-align:left}th{background:var(--bg)}blockquote{border-left:4px solid var(--accent);margin:16px 0;padding:4px 20px;color:var(--muted)}
-.diagram{overflow-x:auto;margin:24px 0;padding:20px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#182332}.mermaid{border:0;background:none;text-align:center}.mermaid svg{height:auto;max-width:100%}details{font-size:13px;color:#526274}.headerlink{margin-left:.4em;font-size:.7em;text-decoration:none;color:var(--muted)}
-@media(max-width:740px){main{margin:0;padding:24px 18px;border:0;border-radius:0}h1{font-size:1.7rem}.diagram{padding:8px}}
-@media print{header,details,.headerlink{display:none}body,main{background:#fff;color:#000;border:0;margin:0;padding:0}a{color:#000}.diagram,pre{break-inside:avoid}}
-</style></head><body><header>Engineering documentation · <a href="development.md">Markdown source</a></header><main><!-- ayu-maintenance-2026-10-12 -->
-<h1 id="current-uv-development-workflow">Current uv development workflow<a class="headerlink" href="#current-uv-development-workflow" title="Permanent link">&para;</a></h1>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Current uv development workflow</title><style>html{color-scheme:light dark}body{margin:0;background:#f5f7fa;color:#172333;font:16px/1.7 system-ui,sans-serif}main{max-width:1120px;margin:28px auto;background:white;padding:40px;border:1px solid #dbe2ea;border-radius:10px}h1,h2,h3{line-height:1.25}h2{margin-top:2em;border-bottom:1px solid #dbe2ea;padding-bottom:.4em}a{color:#1769aa}pre{overflow:auto;padding:16px;background:#f5f7fa;border:1px solid #dbe2ea;border-radius:6px}code{font:14px/1.6 ui-monospace,monospace}table{border-collapse:collapse;display:block;overflow:auto}th,td{border:1px solid #dbe2ea;padding:8px 12px;text-align:left;vertical-align:top}blockquote{margin-left:0;border-left:4px solid #1769aa;padding-left:18px}@media(max-width:700px){main{margin:8px;padding:18px}body{font-size:15px}}@media(prefers-color-scheme:dark){body{background:#111820;color:#e7edf5}main{background:#192330;border-color:#344354}pre{background:#111820}a{color:#78b9ef}th,td,h2,pre{border-color:#344354}}@media print{main{margin:0;border:0;padding:0}a{color:inherit}pre,table{overflow:visible}}.diagram{background:#fff;color:#172333;padding:12px;border:1px solid #dbe2ea;border-radius:6px;overflow:auto}</style></head><body><main><!-- ayu-maintenance-2026-10-12 -->
+
+<!-- current-documentation-provenance -->
+<p>Documentation reviewed: 2026-10-13 · Git source base: <code>776774382657a6192d32f1030f9eaf8f0d9936e8</code> · <a href="ayu-develop.md">Current architecture and feature guide</a>.
+Historical execution commands/results below retain their original dates and scope; this metadata update is not a new application test run.</p>
+<!-- /current-documentation-provenance -->
+
+<h1 id="current-uv-development-workflow">Current uv development workflow</h1>
 <p>The maintained branch is <code>feature/ayu_develop</code>. The selected interpreter is Python <code>3.15</code>; <code>requires-python</code> records the range that was actually resolved. Python 3.15 was attempted first. Dependency/native-wheel failures and fallback evidence are recorded in <a href="validation.md">validation.md</a>.</p>
 <pre><code class="language-sh">export UV_PYTHON_PREFERENCE=only-managed
 uv python install 3.15
@@ -27,14 +20,14 @@ uv run --no-sync python -m backtesting.test
 <p>The <code>src/</code> layout and build-backend package discovery preserve public import names. Wheel/sdist resources include the source-associated data and templates. Optional vendor SDKs, live credentials, databases and graphical/native libraries retain their original runtime requirements. Examples and test fixtures are not promoted into the library API.</p>
 <!-- prior-development-notes -->
 
-<h2 id="compatibility-decisions">Compatibility decisions<a class="headerlink" href="#compatibility-decisions" title="Permanent link">&para;</a></h2>
+<h2 id="compatibility-decisions">Compatibility decisions</h2>
 <ul>
 <li>The existing package unittest suite is authoritative; the README lookup was adjusted for src layout. Package CSV and JavaScript resources remain beside the package.</li>
 <li>Python 3.15 is supported after allowing the current PyYAML release to build from source; absence of a wheel alone was not treated as an incompatibility.</li>
 </ul>
-<h1 id="backtestingpy-development-guide">Backtesting.py -- Development Guide<a class="headerlink" href="#backtestingpy-development-guide" title="Permanent link">&para;</a></h1>
-<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
-<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
+<h1 id="backtestingpy-development-guide">Backtesting.py -- Development Guide</h1>
+<h2 id="setup">Setup</h2>
+<h3 id="installation">Installation</h3>
 <pre><code class="language-bash"># From PyPI
 pip install backtesting
 
@@ -43,14 +36,14 @@ git clone https://github.com/kernc/backtesting.py
 cd backtesting.py
 pip install -e '.[doc,test,dev]'
 </code></pre>
-<h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h3>
+<h3 id="requirements">Requirements</h3>
 <ul>
 <li><strong>Python</strong>: 3.9+</li>
 <li><strong>Core</strong>: numpy &gt;= 1.17.0, pandas &gt;= 0.25.0, bokeh &gt;= 3.0.0</li>
 <li><strong>Test</strong>: coverage, selenium, pillow</li>
 <li><strong>Docs</strong>: pdoc3, jupytext, jupyter-nbconvert</li>
 </ul>
-<h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
+<h2 id="project-structure">Project Structure</h2>
 <pre><code>backtesting.py/
   src/backtesting/
     __init__.py          # Package exports, Pool configuration
@@ -74,8 +67,8 @@ pip install -e '.[doc,test,dev]'
   pyproject.toml         # Ruff, mypy configuration
   setup.py               # Package metadata and dependencies
 </code></pre>
-<h2 id="strategy-creation-guide">Strategy Creation Guide<a class="headerlink" href="#strategy-creation-guide" title="Permanent link">&para;</a></h2>
-<h3 id="minimal-strategy">Minimal Strategy<a class="headerlink" href="#minimal-strategy" title="Permanent link">&para;</a></h3>
+<h2 id="strategy-creation-guide">Strategy Creation Guide</h2>
+<h3 id="minimal-strategy">Minimal Strategy</h3>
 <pre><code class="language-python">from backtesting import Backtest, Strategy
 
 class MyStrategy(Strategy):
@@ -84,7 +77,7 @@ class MyStrategy(Strategy):
     n_slow = 20
 
     def init(self):
-        &quot;&quot;&quot;Called once. Precompute indicators here.&quot;&quot;&quot;
+        """Called once. Precompute indicators here."""
         # self.data has full-length arrays
         close = self.data.Close
 
@@ -93,7 +86,7 @@ class MyStrategy(Strategy):
         self.sma_slow = self.I(SMA, close, self.n_slow)
 
     def next(self):
-        &quot;&quot;&quot;Called per bar. Make trading decisions here.&quot;&quot;&quot;
+        """Called per bar. Make trading decisions here."""
         # Arrays are truncated to current bar
         # Access latest values with [-1]
         if self.sma_fast[-1] &gt; self.sma_slow[-1]:
@@ -115,7 +108,7 @@ bt = Backtest(data, MyStrategy, cash=10000, commission=0.002)
 stats = bt.run()
 bt.plot()
 </code></pre>
-<h3 id="strategy-with-sltp-and-position-sizing">Strategy with SL/TP and Position Sizing<a class="headerlink" href="#strategy-with-sltp-and-position-sizing" title="Permanent link">&para;</a></h3>
+<h3 id="strategy-with-sltp-and-position-sizing">Strategy with SL/TP and Position Sizing</h3>
 <pre><code class="language-python">class RiskManagedStrategy(Strategy):
     risk_pct = 0.02  # Risk 2% of equity per trade
     atr_mult = 2.0   # SL at 2x ATR
@@ -146,7 +139,7 @@ bt.plot()
                     tp=price + sl_distance * 2  # 2:1 reward/risk
                 )
 </code></pre>
-<h3 id="signal-based-strategy-vectorized">Signal-Based Strategy (Vectorized)<a class="headerlink" href="#signal-based-strategy-vectorized" title="Permanent link">&para;</a></h3>
+<h3 id="signal-based-strategy-vectorized">Signal-Based Strategy (Vectorized)</h3>
 <pre><code class="language-python">from backtesting.lib import SignalStrategy
 
 class MySignalStrategy(SignalStrategy):
@@ -162,7 +155,7 @@ class MySignalStrategy(SignalStrategy):
         entry = (close &gt; sma).astype(int) - (close &lt; sma).astype(int)
         self.set_signal(entry, plot=True)
 </code></pre>
-<h3 id="trailing-stop-strategy">Trailing Stop Strategy<a class="headerlink" href="#trailing-stop-strategy" title="Permanent link">&para;</a></h3>
+<h3 id="trailing-stop-strategy">Trailing Stop Strategy</h3>
 <pre><code class="language-python">from backtesting.lib import TrailingStrategy
 
 class MyTrailingStrategy(TrailingStrategy):
@@ -180,14 +173,14 @@ class MyTrailingStrategy(TrailingStrategy):
             if not self.position:
                 self.buy()
 </code></pre>
-<h2 id="custom-indicator-development">Custom Indicator Development<a class="headerlink" href="#custom-indicator-development" title="Permanent link">&para;</a></h2>
-<h3 id="basic-indicator">Basic Indicator<a class="headerlink" href="#basic-indicator" title="Permanent link">&para;</a></h3>
+<h2 id="custom-indicator-development">Custom Indicator Development</h2>
+<h3 id="basic-indicator">Basic Indicator</h3>
 <p>Indicators are any callable that returns a numpy array (or tuple of arrays) with the same length as the input data:</p>
 <pre><code class="language-python">import pandas as pd
 import numpy as np
 
 def RSI(close, period=14):
-    &quot;&quot;&quot;Relative Strength Index&quot;&quot;&quot;
+    """Relative Strength Index"""
     delta = pd.Series(close).diff()
     gain = delta.where(delta &gt; 0, 0).rolling(period).mean()
     loss = (-delta.where(delta &lt; 0, 0)).rolling(period).mean()
@@ -197,9 +190,9 @@ def RSI(close, period=14):
 # Usage in Strategy.init():
 self.rsi = self.I(RSI, self.data.Close, 14)
 </code></pre>
-<h3 id="multi-output-indicator">Multi-Output Indicator<a class="headerlink" href="#multi-output-indicator" title="Permanent link">&para;</a></h3>
+<h3 id="multi-output-indicator">Multi-Output Indicator</h3>
 <pre><code class="language-python">def BollingerBands(close, period=20, std=2):
-    &quot;&quot;&quot;Returns (upper, middle, lower) bands&quot;&quot;&quot;
+    """Returns (upper, middle, lower) bands"""
     s = pd.Series(close)
     mid = s.rolling(period).mean()
     std_dev = s.rolling(period).std()
@@ -213,7 +206,7 @@ self.bb_upper, self.bb_mid, self.bb_lower = self.I(
     name=('BB Upper', 'BB Mid', 'BB Lower')
 )
 </code></pre>
-<h3 id="using-ta-lib">Using TA-Lib<a class="headerlink" href="#using-ta-lib" title="Permanent link">&para;</a></h3>
+<h3 id="using-ta-lib">Using TA-Lib</h3>
 <pre><code class="language-python">import talib
 
 class TALibStrategy(Strategy):
@@ -224,7 +217,7 @@ class TALibStrategy(Strategy):
             talib.MACD, close, name=('MACD', 'Signal', 'Histogram')
         )
 </code></pre>
-<h3 id="multi-timeframe-indicators">Multi-Timeframe Indicators<a class="headerlink" href="#multi-timeframe-indicators" title="Permanent link">&para;</a></h3>
+<h3 id="multi-timeframe-indicators">Multi-Timeframe Indicators</h3>
 <pre><code class="language-python">from backtesting.lib import resample_apply
 
 class MultiTFStrategy(Strategy):
@@ -238,22 +231,22 @@ class MultiTFStrategy(Strategy):
         daily_sma = SMA(daily, 10).reindex(close.index).ffill()
         self.daily_sma_manual = self.I(lambda: daily_sma, name='Daily SMA')
 </code></pre>
-<h2 id="data-source-integration">Data Source Integration<a class="headerlink" href="#data-source-integration" title="Permanent link">&para;</a></h2>
-<h3 id="from-csv">From CSV<a class="headerlink" href="#from-csv" title="Permanent link">&para;</a></h3>
+<h2 id="data-source-integration">Data Source Integration</h2>
+<h3 id="from-csv">From CSV</h3>
 <pre><code class="language-python">import pandas as pd
 
 data = pd.read_csv('data.csv', index_col='Date', parse_dates=True)
 # Ensure columns: Open, High, Low, Close, Volume
 bt = Backtest(data, MyStrategy)
 </code></pre>
-<h3 id="from-api-yfinance">From API (yfinance)<a class="headerlink" href="#from-api-yfinance" title="Permanent link">&para;</a></h3>
+<h3 id="from-api-yfinance">From API (yfinance)</h3>
 <pre><code class="language-python">import yfinance as yf
 
 data = yf.download('AAPL', start='2020-01-01', end='2024-01-01')
 data.columns = data.columns.droplevel(1)  # Remove multi-level if present
 bt = Backtest(data, MyStrategy)
 </code></pre>
-<h3 id="custom-data-with-extra-columns">Custom Data with Extra Columns<a class="headerlink" href="#custom-data-with-extra-columns" title="Permanent link">&para;</a></h3>
+<h3 id="custom-data-with-extra-columns">Custom Data with Extra Columns</h3>
 <pre><code class="language-python"># Extra columns are accessible via self.data
 data['Sentiment'] = sentiment_scores
 
@@ -262,8 +255,8 @@ class SentimentStrategy(Strategy):
         if self.data.Sentiment[-1] &gt; 0.8:
             self.buy()
 </code></pre>
-<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<h3 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h3>
+<h2 id="testing">Testing</h2>
+<h3 id="running-tests">Running Tests</h3>
 <pre><code class="language-bash"># Run all tests
 python -m backtesting.test
 
@@ -274,14 +267,14 @@ coverage combine &amp;&amp; coverage report
 # Headless (no browser)
 BOKEH_BROWSER=none python -m backtesting.test
 </code></pre>
-<h3 id="linting">Linting<a class="headerlink" href="#linting" title="Permanent link">&para;</a></h3>
+<h3 id="linting">Linting</h3>
 <pre><code class="language-bash"># Ruff (configured in pyproject.toml, 100-char line length)
 ruff check backtesting
 
 # Type checking
 mypy --no-warn-unused-ignores backtesting
 </code></pre>
-<h3 id="writing-tests">Writing Tests<a class="headerlink" href="#writing-tests" title="Permanent link">&para;</a></h3>
+<h3 id="writing-tests">Writing Tests</h3>
 <p>Tests are in <code>src/backtesting/test/_test.py</code> using <code>unittest</code>. Sample data is available:</p>
 <pre><code class="language-python">from backtesting.test import GOOG, EURUSD, BTCUSD, SmaCross, SMA
 
@@ -289,8 +282,8 @@ mypy --no-warn-unused-ignores backtesting
 # SmaCross is a sample strategy class
 # SMA is a simple moving average function
 </code></pre>
-<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
-<h3 id="parameter-optimization">Parameter Optimization<a class="headerlink" href="#parameter-optimization" title="Permanent link">&para;</a></h3>
+<h2 id="common-patterns">Common Patterns</h2>
+<h3 id="parameter-optimization">Parameter Optimization</h3>
 <pre><code class="language-python">stats = bt.optimize(
     n1=range(5, 30, 5),
     n2=range(10, 70, 5),
@@ -299,7 +292,7 @@ mypy --no-warn-unused-ignores backtesting
 )
 print(stats._strategy)  # Shows optimal parameters
 </code></pre>
-<h3 id="analyzing-trade-subsets">Analyzing Trade Subsets<a class="headerlink" href="#analyzing-trade-subsets" title="Permanent link">&para;</a></h3>
+<h3 id="analyzing-trade-subsets">Analyzing Trade Subsets</h3>
 <pre><code class="language-python">from backtesting.lib import compute_stats
 
 stats = bt.run()
@@ -311,21 +304,21 @@ long_stats = compute_stats(
     risk_free_rate=0.02
 )
 </code></pre>
-<h3 id="fractional-crypto-trading">Fractional / Crypto Trading<a class="headerlink" href="#fractional-crypto-trading" title="Permanent link">&para;</a></h3>
+<h3 id="fractional-crypto-trading">Fractional / Crypto Trading</h3>
 <pre><code class="language-python">from backtesting.lib import FractionalBacktest
 
 bt = FractionalBacktest(btc_data, MyStrategy, fractional_unit=1/1e6)
 stats = bt.run()
 </code></pre>
-<h3 id="multi-asset-comparison">Multi-Asset Comparison<a class="headerlink" href="#multi-asset-comparison" title="Permanent link">&para;</a></h3>
+<h3 id="multi-asset-comparison">Multi-Asset Comparison</h3>
 <pre><code class="language-python">from backtesting.lib import MultiBacktest
 from backtesting.test import EURUSD, BTCUSD, SmaCross
 
 btm = MultiBacktest([EURUSD, BTCUSD], SmaCross)
 stats_df = btm.run(fast=10, slow=20)
 </code></pre>
-<h2 id="configuration-reference">Configuration Reference<a class="headerlink" href="#configuration-reference" title="Permanent link">&para;</a></h2>
-<h3 id="backtest-constructor-parameters">Backtest Constructor Parameters<a class="headerlink" href="#backtest-constructor-parameters" title="Permanent link">&para;</a></h3>
+<h2 id="configuration-reference">Configuration Reference</h2>
+<h3 id="backtest-constructor-parameters">Backtest Constructor Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -398,7 +391,7 @@ stats_df = btm.run(fast=10, slow=20)
 </tr>
 </tbody>
 </table>
-<h3 id="strategybuy-strategysell-parameters">Strategy.buy() / Strategy.sell() Parameters<a class="headerlink" href="#strategybuy-strategysell-parameters" title="Permanent link">&para;</a></h3>
+<h3 id="strategybuy-strategysell-parameters">Strategy.buy() / Strategy.sell() Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -441,7 +434,7 @@ stats_df = btm.run(fast=10, slow=20)
 </tr>
 </tbody>
 </table>
-<h3 id="backtestoptimize-key-parameters">Backtest.optimize() Key Parameters<a class="headerlink" href="#backtestoptimize-key-parameters" title="Permanent link">&para;</a></h3>
+<h3 id="backtestoptimize-key-parameters">Backtest.optimize() Key Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -490,69 +483,66 @@ stats_df = btm.run(fast=10, slow=20)
 </tr>
 </tbody>
 </table>
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<h3 id="1-typeerror-strategy-must-be-a-strategy-sub-type">1. <code>TypeError: 'strategy' must be a Strategy sub-type</code><a class="headerlink" href="#1-typeerror-strategy-must-be-a-strategy-sub-type" title="Permanent link">&para;</a></h3>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="1-typeerror-strategy-must-be-a-strategy-sub-type">1. <code>TypeError: 'strategy' must be a Strategy sub-type</code></h3>
 <p><strong>Cause</strong>: Passing a Strategy instance instead of the class itself.
 <strong>Fix</strong>: Pass the class, not an instance: <code>Backtest(data, MyStrategy)</code> -- not <code>Backtest(data, MyStrategy())</code>.</p>
-<h3 id="2-valueerror-or-empty-results-with-no-trades">2. <code>ValueError</code> or empty results with no trades<a class="headerlink" href="#2-valueerror-or-empty-results-with-no-trades" title="Permanent link">&para;</a></h3>
+<h3 id="2-valueerror-or-empty-results-with-no-trades">2. <code>ValueError</code> or empty results with no trades</h3>
 <p><strong>Cause</strong>: Indicators have a warmup period that consumes initial bars; if data is too short, <code>next()</code> is never called with valid signals.
 <strong>Fix</strong>: Ensure the dataset has significantly more rows than the longest indicator period. Check that your <code>next()</code> logic actually triggers buy/sell under the data conditions.</p>
-<h3 id="3-keyerror-open-or-high-low-close">3. <code>KeyError: 'Open'</code> (or High, Low, Close)<a class="headerlink" href="#3-keyerror-open-or-high-low-close" title="Permanent link">&para;</a></h3>
+<h3 id="3-keyerror-open-or-high-low-close">3. <code>KeyError: 'Open'</code> (or High, Low, Close)</h3>
 <p><strong>Cause</strong>: DataFrame columns are lowercase or differently named.
 <strong>Fix</strong>: Rename columns to match the expected capitalization: <code>df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']</code>.</p>
-<h3 id="4-orders-not-filling-unexpected-fill-prices">4. Orders not filling / unexpected fill prices<a class="headerlink" href="#4-orders-not-filling-unexpected-fill-prices" title="Permanent link">&para;</a></h3>
+<h3 id="4-orders-not-filling-unexpected-fill-prices">4. Orders not filling / unexpected fill prices</h3>
 <p><strong>Cause</strong>: By default, market orders fill at the next bar's open price, not the current bar's close.
 <strong>Fix</strong>: Set <code>trade_on_close=True</code> in the Backtest constructor if you want fills at the current bar's close. For limit/stop orders, ensure the target price is actually reached by the bar's High/Low range.</p>
-<h3 id="5-selfsell-does-not-close-a-long-position">5. <code>self.sell()</code> does not close a long position<a class="headerlink" href="#5-selfsell-does-not-close-a-long-position" title="Permanent link">&para;</a></h3>
+<h3 id="5-selfsell-does-not-close-a-long-position">5. <code>self.sell()</code> does not close a long position</h3>
 <p><strong>Cause</strong>: Without <code>exclusive_orders=True</code>, <code>sell()</code> opens a new short position rather than closing the existing long.
 <strong>Fix</strong>: Use <code>self.position.close()</code> to explicitly close the current position, or set <code>exclusive_orders=True</code> in the Backtest constructor.</p>
-<h3 id="6-optimization-hangs-or-crashes-on-windows">6. Optimization hangs or crashes on Windows<a class="headerlink" href="#6-optimization-hangs-or-crashes-on-windows" title="Permanent link">&para;</a></h3>
+<h3 id="6-optimization-hangs-or-crashes-on-windows">6. Optimization hangs or crashes on Windows</h3>
 <p><strong>Cause</strong>: Python's <code>spawn</code> multiprocessing method on Windows requires the <code>if __name__ == '__main__'</code> guard.
 <strong>Fix</strong>: Wrap your <code>optimize()</code> call inside <code>if __name__ == '__main__':</code>. Alternatively, set <code>backtesting.Pool = multiprocessing.Pool</code> before calling optimize.</p>
-<h3 id="7-bokeh-plot-not-rendering-in-jupyter">7. Bokeh plot not rendering in Jupyter<a class="headerlink" href="#7-bokeh-plot-not-rendering-in-jupyter" title="Permanent link">&para;</a></h3>
+<h3 id="7-bokeh-plot-not-rendering-in-jupyter">7. Bokeh plot not rendering in Jupyter</h3>
 <p><strong>Cause</strong>: Bokeh output mode not configured for notebooks.
 <strong>Fix</strong>: Call <code>from bokeh.io import output_notebook; output_notebook()</code> before <code>bt.plot()</code>. For headless environments, set <code>BOKEH_BROWSER=none</code>.</p>
-<h3 id="8-fractional-position-sizes-are-rounded-to-zero">8. Fractional position sizes are rounded to zero<a class="headerlink" href="#8-fractional-position-sizes-are-rounded-to-zero" title="Permanent link">&para;</a></h3>
+<h3 id="8-fractional-position-sizes-are-rounded-to-zero">8. Fractional position sizes are rounded to zero</h3>
 <p><strong>Cause</strong>: The default broker rounds sizes to integers. With high-priced assets and low capital, this can round to zero.
 <strong>Fix</strong>: Use <code>FractionalBacktest</code> from <code>backtesting.lib</code> for crypto or fractional trading: <code>from backtesting.lib import FractionalBacktest</code>.</p>
-<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
-<h3 id="api-keys-and-credentials">API Keys and Credentials<a class="headerlink" href="#api-keys-and-credentials" title="Permanent link">&para;</a></h3>
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="api-keys-and-credentials">API Keys and Credentials</h3>
 <ul>
 <li>Never hardcode API keys, broker credentials, or exchange secrets in strategy files. Use environment variables or a secrets manager.</li>
 <li>The framework itself does not handle external API connections, but data loading scripts often do. Keep credentials out of version control.</li>
 </ul>
-<h3 id="data-integrity">Data Integrity<a class="headerlink" href="#data-integrity" title="Permanent link">&para;</a></h3>
+<h3 id="data-integrity">Data Integrity</h3>
 <ul>
 <li>Validate input data for NaN values, gaps, and outliers before running backtests. Corrupt data can produce misleading statistics.</li>
 <li>Use <code>data.dropna()</code> or forward-fill judiciously. Be aware that filling gaps can introduce look-ahead bias.</li>
 </ul>
-<h3 id="look-ahead-bias">Look-Ahead Bias<a class="headerlink" href="#look-ahead-bias" title="Permanent link">&para;</a></h3>
+<h3 id="look-ahead-bias">Look-Ahead Bias</h3>
 <ul>
 <li>Indicators declared in <code>init()</code> compute over the full dataset but are progressively revealed in <code>next()</code>. Custom indicator functions that inadvertently access future data will produce unrealistically good results.</li>
 <li>When using <code>resample_apply()</code>, ensure the resampled values are properly lagged to avoid peeking at intra-period data.</li>
 </ul>
-<h3 id="survivorship-bias">Survivorship Bias<a class="headerlink" href="#survivorship-bias" title="Permanent link">&para;</a></h3>
+<h3 id="survivorship-bias">Survivorship Bias</h3>
 <ul>
 <li>Backtesting only on currently listed securities ignores delisted or bankrupt companies. Source data that includes delistings for realistic results.</li>
 </ul>
-<h3 id="multiprocessing-and-shared-state">Multiprocessing and Shared State<a class="headerlink" href="#multiprocessing-and-shared-state" title="Permanent link">&para;</a></h3>
+<h3 id="multiprocessing-and-shared-state">Multiprocessing and Shared State</h3>
 <ul>
 <li>The optimization engine uses multiprocessing. Avoid global mutable state in strategies, as child processes get copies (not references) of global objects.</li>
 <li>On systems with <code>fork</code> semantics, file descriptors and locks may be inherited unexpectedly. Prefer <code>spawn</code> or ensure cleanup in <code>init()</code>.</li>
 </ul>
-<h3 id="pickle-and-serialization">Pickle and Serialization<a class="headerlink" href="#pickle-and-serialization" title="Permanent link">&para;</a></h3>
+<h3 id="pickle-and-serialization">Pickle and Serialization</h3>
 <ul>
 <li>Optimization results and strategy objects may be pickled when using multiprocessing. Do not store sensitive data (credentials, PII) as strategy attributes, as they could be serialized to disk in temporary files.</li>
 </ul>
-<hr />
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<hr>
+<h2 id="see-also">See Also</h2>
 <ul>
 <li><a href="README.md">README</a> — Project overview and quick start</li>
 <li><a href="architecture.md">Architecture</a> — System design and components</li>
 <li><a href="workflow.md">Workflow</a> — Event flows and processing pipelines</li>
 <li><a href="state-management.md">State Management</a> — State lifecycle and data models</li>
 </ul></main>
-<script type="module">
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@12.1.0/dist/mermaid.esm.min.mjs';
-mermaid.initialize({startOnLoad:true,securityLevel:'strict',theme:'default',flowchart:{useMaxWidth:true},sequence:{useMaxWidth:true}});
-</script></body></html>
+</body></html>

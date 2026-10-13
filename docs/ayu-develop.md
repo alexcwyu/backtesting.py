@@ -1,273 +1,215 @@
-# backtesting.py: development, architecture and operations
+# Backtesting.py: workflow, design and architecture
 
-Updated 2026-10-12 on `feature/ayu_develop`; source snapshot `8836111832c9`. This guide follows the source in this checkout and separates available interfaces from verification evidence.
+Updated: **2026-10-13**
+Reviewed Git hash: `776774382657a6192d32f1030f9eaf8f0d9936e8`
+Branch: `feature/ayu_develop`
+Source diff SHA256: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+Scope: **Bar-based backtesting engine** / Maintenance: **active**
+Languages: Python
 
-## Purpose and feature boundaries
+[HTML edition](ayu-develop.html) / [Development](development.md) / [Historical validation](validation.md) / [Full system comparison](../../docs/index.html)
 
-OHLC-based strategy simulation, parameter optimization, performance statistics and interactive Bokeh reports, centered on Backtest and Strategy.
+## Purpose and scope
 
-Strategy.init precomputes indicators and Strategy.next observes progressively revealed history. The broker owns orders and fills; statistics and plotting consume finished trade/equity records. Optimization runs many independent strategy instances. The existing unittest entry point, including package test data, is the authoritative suite.
+Simulate a strategy on one OHLCV data frame with order and trade accounting, optimization, and performance statistics.
 
-## Main workflow
+## Features and support boundaries
 
-The following is the repository-specific logical workflow. Runtime execution details remain in the linked source and the validation record.
+Native = implemented here. Integration = supplied through a named host/API. Limited = material restriction. Not provided = evidenced scope exclusion. Unverified = support/absence not established. Not applicable = outside this artifact type.
+
+| Capability | Status | Implementation and limits | Source |
+|---|---|---|---|
+| Backtesting | Native | Bar-by-bar OHLC simulation with broker processing before strategy callback. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) |
+| Live execution | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Paper trading | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Event driven | Limited | Sequential bar callbacks rather than an asynchronous event bus. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) |
+| Vectorized | Limited | Indicators and statistics may use arrays. Order execution remains a bar loop. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) |
+| Order management | Native | Queued orders and trades, exclusive order handling and partial trade close. | [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875)) / [Trade.close](../src/backtesting/backtesting.py) ([L573](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L573)) |
+| Order types | Native | Market, limit, stop, stop-limit and contingent SL/TP are handled by the broker. | [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875)) |
+| Multi venue | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Crypto | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Equities | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Futures | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Options | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Forex | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Strategy api | Native | Strategy subclasses implement init and next, and submit buy/sell orders. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200)) |
+| Optimization | Native | Grid/SAMBO search supports a result-field or callable objective and constraints. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) |
+| Machine learning | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Reinforcement learning | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Portfolio | Limited | Cash and trades for a single OHLC data frame. Not a multi-venue portfolio OMS. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875)) |
+| Risk management | Native | Margin checks and SL/TP order construction. Intrabar price ordering remains approximate. | [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875)) |
+| Performance analytics | Native | Equity/trade metrics and drawdown statistics. | [compute_stats](../src/backtesting/_stats.py) ([L37](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/_stats.py#L37)) |
+| Historical data | Limited | Caller supplies a pandas OHLCV frame, validated by Backtest. Provider ingestion is outside this inspected flow. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) |
+| Streaming data | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Persistence | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Data pipeline | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Web ui | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Cli | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Monitoring | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Extension api | Native | Strategy callbacks and custom indicator functions. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200)) |
+| Native acceleration | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+| Distributed execution | Unverified | The inspected source does not establish this capability. This is not a claim of absence. | Not applicable to this repository scope. |
+
+## System components
+
+| Component | Responsibility | Source |
+|---|---|---|
+| Backtest | Owns data validation, simulation lifecycle and parameter search. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) |
+| Strategy | User strategy hooks and broker-facing order submission. | [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200)) |
+| _Broker | Simulated order execution, margin and position accounting. | [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875)) |
+| Trade | Filled position lifecycle and closing orders. | [Trade.close](../src/backtesting/backtesting.py) ([L573](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L573)) |
+| compute_stats | Performance statistics. | [compute_stats](../src/backtesting/_stats.py) ([L37](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/_stats.py#L37)) |
+
+## Architecture and component boundaries
+
+The component view summarizes inspected responsibility boundaries. Arrows identify the documented API/data dependencies; this is not a deployment-readiness claim.
 
 ```mermaid
 flowchart LR
-    S0["Validate OHLC DataFrame"]
-    S1["Initialize Strategy indicators"]
-    S0 --> S1
-    S2["Reveal one bar at a time"]
-    S1 --> S2
-    S3["Process broker orders and trades"]
-    S2 --> S3
-    S4["Calculate statistics"]
-    S3 --> S4
-    S5["Plot or optimize results"]
-    S4 --> S5
+  N0["Backtest"]
+  N1["Strategy"]
+  N2["_Broker"]
+  N3["Trade"]
+  N4["compute_stats"]
+  N0 -->|"Create broker and call broker.next per bar."| N2
+  N0 -->|"Call init once and next for each warmed-up bar."| N1
+  N1 -->|"buy calls new_order."| N2
+  N0 -->|"Pass equity and closed trades to compute_stats."| N4
 ```
 
-1. Validate OHLC DataFrame.
-2. Initialize Strategy indicators.
-3. Reveal one bar at a time.
-4. Process broker orders and trades.
-5. Calculate statistics.
-6. Plot or optimize results.
+- Create broker and call broker.next per bar.: [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+- Call init once and next for each warmed-up bar.: [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+- buy calls new_order.: [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200))
+- Pass equity and closed trades to compute_stats.: [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
 
-## Components and ownership
+## Design decisions
 
-The entry point composes the source modules below; arrows indicate review/navigation boundaries rather than a claim that every module is called in every run.
+| Decision | Rationale | Tradeoff | Evidence |
+|---|---|---|---|
+| Process broker orders before each strategy callback. | Orders submitted by the previous callback are evaluated on the next available bar. | OHLC bars cannot uniquely reconstruct intrabar stop/limit ordering. | [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875)) |
 
-```mermaid
-flowchart TB
-    User["Application / research entry point"]
-    M0["backtesting.py"]
-    User --> M0
-    M1["lib.py"]
-    User --> M1
-    M2["_stats.py"]
-    User --> M2
-    M3["_plotting.py"]
-    User --> M3
-    M4["_util.py"]
-    User --> M4
-    M5["__init__.py"]
-    User --> M5
-    M6["autoscale_cb.js"]
-    User --> M6
-    M7["test/_test.py"]
-    User --> M7
-```
-
-| Source | Declared classes / functions | Implementation role |
-|---|---|---|
-| [src/backtesting/backtesting.py](../src/backtesting/backtesting.py) | Strategy, Position, _OutOfMoneyError, Order, Trade, _Broker | Core framework data structures. |
-| [src/backtesting/lib.py](../src/backtesting/lib.py) | SignalStrategy, TrailingStrategy, FractionalBacktest, MultiBacktest; barssince, cross, crossover, plot_heatmaps | Collection of common building blocks, helper auxiliary functions and |
-| [src/backtesting/_stats.py](../src/backtesting/_stats.py) | _Stats; compute_drawdown_duration_peaks, geometric_mean, compute_stats, dummy_stats | See the public declarations and implementation linked here. |
-| [src/backtesting/_plotting.py](../src/backtesting/_plotting.py) | set_bokeh_output, _windos_safe_filename, _bokeh_reset, _add_popcon | See the public declarations and implementation linked here. |
-| [src/backtesting/_util.py](../src/backtesting/_util.py) | _Array, _Indicator, _Data, SharedMemoryManager; try_, patch, _as_str, _as_list | See the public declarations and implementation linked here. |
-| [src/backtesting/__init__.py](../src/backtesting/__init__.py) | Pool | ![xkcd.com/1570](https://imgs.xkcd.com/comics/engineer_syllogism.png){: height=263} |
-| [src/backtesting/autoscale_cb.js](../src/backtesting/autoscale_cb.js) | Package data / configuration | See the public declarations and implementation linked here. |
-| [src/backtesting/test/_test.py](../src/backtesting/test/_test.py) | SmaCross, _S, TestBacktest, TestStrategy, TestOptimize, TestPlot; _tempfile, chdir | See the public declarations and implementation linked here. |
-| [src/backtesting/test/__init__.py](../src/backtesting/test/__init__.py) | _read_file, SMA | Data and utilities for testing. |
-| [src/backtesting/test/__main__.py](../src/backtesting/test/__main__.py) | Package data / configuration | See the public declarations and implementation linked here. |
-| [src/backtesting/test/GOOG.csv](../src/backtesting/test/GOOG.csv) | Package data / configuration | See the public declarations and implementation linked here. |
-| [pyproject.toml](../pyproject.toml) | Package data / configuration | See the public declarations and implementation linked here. |
-
-## Class design
-
-Methods and inheritance edges are taken from the selected declarations in the actual source. A missing edge means composition or an external base is not asserted here.
+## Class and interface relationships
 
 ```mermaid
 classDiagram
-    class Strategy {
-        +__init__()
-        +I()
-        +init()
-        +next()
-        +buy()
-    }
-    class Position {
-        +__init__()
-        +size()
-        +pl()
-        +pl_pct()
-        +is_long()
-    }
-    class Order {
-        +__init__()
-        +cancel()
-        +size()
-        +limit()
-        +stop()
-    }
-    class Trade {
-        +__init__()
-        +close()
-        +size()
-        +entry_price()
-        +exit_price()
-    }
-    class _Broker {
-        +__init__()
-        +new_order()
-        +last_price()
-        +equity()
-        +margin_available()
-    }
-    class Backtest {
-        +__init__()
-        +run()
-        +optimize()
-        +plot()
-    }
+  class N0["Backtest"] {
+    <<class>>
+    +run()
+    +optimize()
+  }
+  class N1["Strategy"] {
+    <<class>>
+    +buy()
+    +next()
+  }
+  class N2["_Broker"] {
+    <<class>>
+    +new_order()
+    +_process_orders()
+  }
+  class N3["Trade"] {
+    <<class>>
+    +close()
+  }
+  class N4["compute_stats"] {
+    <<function>>
+  }
+  N0 *-- N1 : Constructs the supplied Strategy subtype.
+  N0 *-- N2 : Creates the _Broker through the broker factory.
+  N1 ..> N2 : buy delegates to new_order.
+  N3 ..> N2 : close appends a broker order.
 ```
 
-## End-to-end interaction
+Each node is a reviewed source symbol. Function/module nodes are explicitly labeled; they do not imply Python classes. Only reviewed relationships are drawn.
 
-This sequence presents the responsibilities of the main workflow, including the state/result boundary. The linked classes and functions provide the exact method-level contract.
+- **Backtest** (class): [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+- **Strategy** (class): [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200))
+- **_Broker** (class): [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875))
+- **Trade** (class): [Trade.close](../src/backtesting/backtesting.py) ([L573](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L573))
+- **compute_stats** (function): [compute_stats](../src/backtesting/_stats.py) ([L37](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/_stats.py#L37))
 
-```mermaid
-sequenceDiagram
-    actor User
-    participant Entry as Validate OHLC DataFrame
-    participant Process as Reveal one bar at a time
-    participant State as Calculate statistics
-    participant Output as Plot or optimize results
-    User->>Entry: Supply configuration and inputs
-    Entry->>Process: Initialize Strategy indicators
-    Process->>State: Process broker orders and trades
-    State-->>Process: Updated execution / calculation state
-    Process->>Output: Produce results
-    Output-->>User: Report outcomes
-```
+## Workflow
 
-## Source dependency direction
+### Representative source-backed flow
 
-These edges are actual explicit imports between the selected source modules. Dynamic imports, re-exports and third-party internals are omitted.
-
-```mermaid
-flowchart LR
-    I0["backtesting"]
-    I1["lib"]
-    I2["_stats"]
-    I3["_plotting"]
-    I4["_util"]
-    I5["__init__"]
-    I6["autoscale_cb"]
-    I7["_test"]
-    I8["__init__"]
-    I9["__main__"]
-    I3 --> I4
-    I7 --> I1
-    I7 --> I2
-    I7 --> I3
-    I7 --> I4
-```
-
-## Design details and extension points
-
-### `Strategy`
-
-Source: [src/backtesting/backtesting.py](../src/backtesting/backtesting.py).
-
-A trading strategy base class. Extend this class and
-override methods
-`backtesting.backtesting.Strategy.init` and
-`backtesting.backtesting.Strategy.next` to define
-your own strategy.
-
-- `I`: Declare an indicator. An indicator is just an array of values (or a tuple of such arrays in case of, e.g., MACD indicator), but one that is revealed gradually in `backtesting.backtesting.Strategy.next` much like `backtesting.backtesting.Strategy.data` is. Returns `np.ndarray` of indicator values.
-- `init`: Initialize the strategy. Override this method. Declare indicators (with `backtesting.backtesting.Strategy.I`). Precompute what needs to be precomputed or can be precomputed in a vectorized fashion before the strategy starts.
-- `next`: Main strategy runtime method, called as each new `backtesting.backtesting.Strategy.data` instance (row; full candlestick bar) becomes available. This is the main method where strategy decisions upon data precomputed in `backtesting.backtesting.Strategy.init` take place.
-- `buy`: Place a new long order and return it. For explanation of parameters, see `Order` and its properties. Unless you're running `Backtest(..., trade_on_close=True)`, market orders are filled on next bar's open, whereas other order types (limit, stop-limit, stop-market) are filled when the respective cond
-- `sell`: Place a new short order and return it. For explanation of parameters, see `Order` and its properties.
-
-### `Position`
-
-Source: [src/backtesting/backtesting.py](../src/backtesting/backtesting.py).
-
-Currently held asset position, available as
-`backtesting.backtesting.Strategy.position` within
-`backtesting.backtesting.Strategy.next`.
-Can be used in boolean contexts, e.g.
-
-- `size`: Position size in units of asset. Negative if position is short.
-- `pl`: Profit (positive) or loss (negative) of the current position in cash units.
-- `pl_pct`: Profit (positive) or loss (negative) of the current position in percent.
-- `is_long`: True if the position is long (position size is positive).
-- `is_short`: True if the position is short (position size is negative).
-
-### `Order`
-
-Source: [src/backtesting/backtesting.py](../src/backtesting/backtesting.py).
-
-Place new orders through `Strategy.buy()` and `Strategy.sell()`.
-Query existing orders through `Strategy.orders`.
-
-- `cancel`: Cancel the order.
-- `size`: Order size (negative for short orders).
-- `limit`: Order limit price for [limit orders], or None for [market orders], which are filled at next available price.
-- `stop`: Order stop price for [stop-limit/stop-market][_] order, otherwise None if no stop was set, or the stop price has already been hit.
-- `sl`: A stop-loss price at which, if set, a new contingent stop-market order will be placed upon the `Trade` following this order's execution. See also `Trade.sl`.
-
-### `Trade`
-
-Source: [src/backtesting/backtesting.py](../src/backtesting/backtesting.py).
-
-When an `Order` is filled, it results in an active `Trade`.
-Find active trades in `Strategy.trades` and closed, settled trades in `Strategy.closed_trades`.
-
-- `close`: Place new `Order` to close `portion` of the trade at next market price.
-- `size`: Trade size (volume; negative for short trades).
-- `entry_price`: Trade entry price.
-- `exit_price`: Trade exit price (or None if the trade is still active).
-- `entry_bar`: Candlestick bar index of when the trade was entered.
-
-### `_Broker`
-
-Source: [src/backtesting/backtesting.py](../src/backtesting/backtesting.py).
-
-The class contract is defined by its linked implementation.
-
-- `new_order`: Argument size indicates whether the order is long or short
-- `last_price`: Price at the last (current) close.
-- `equity`: See implementation for the complete contract.
-- `margin_available`: See implementation for the complete contract.
-- `next`: See implementation for the complete contract.
-
-### `Backtest`
-
-Source: [src/backtesting/backtesting.py](../src/backtesting/backtesting.py).
-
-Backtest a particular (parameterized) strategy
-on particular data.
-
-- `run`: Run the backtest. Returns `pd.Series` with results and statistics.
-- `optimize`: Optimize strategy parameters to an optimal combination. Returns result `pd.Series` of the best run.
-- `plot`: Plot the progression of the last backtest run.
-
-## Repository layout and resources
-
-Installable packages live under `src/`. `pyproject.toml` defines package metadata, build requirements, optional integrations and development dependencies; `uv.lock` records resolved versions, and `.python-version` selects the local interpreter. This layout keeps an accidental checkout import from substituting for the installed wheel. Package resources remain beside their owning modules and are included by the build backend. Existing upstream examples, fixtures, scripts and documentation retain their separate roles.
-
-## Maintenance compatibility and evidence
-
-- The existing package unittest suite is authoritative; the README lookup was adjusted for src layout. Package CSV and JavaScript resources remain beside the package.
-- Python 3.15 is supported after allowing the current PyYAML release to build from source; absence of a wheel alone was not treated as an incompatibility.
-
-## Development and verification workflow
+The steps describe the inspected implementation. User configuration and data inputs are external prerequisites.
 
 ```mermaid
 flowchart TD
-    Checkout["feature/ayu_develop"] --> Lock["uv lock --upgrade"]
-    Lock --> Sync["uv sync --frozen --all-extras --all-groups"]
-    Sync --> Compile["python -m compileall src"]
-    Sync --> Test["Existing complete test suite"]
-    Compile --> Build["uv build wheel and sdist"]
-    Test --> Evidence["Record exact exits and blockers"]
-    Build --> Evidence
-    Evidence --> Review["Review documentation and commit"]
+  W0["Construct broker and strategy from historical data."]
+  W1["Initialize indicators and handle each strategy next callback."]
+  W0 --> W1
+  W2["Process queued orders using the current OHLC bar before the next strategy callback."]
+  W1 --> W2
+  W3["Compute equity and trade statistics."]
+  W2 --> W3
 ```
 
-See [development commands](development.md) and [validation evidence](validation.md) for interpreter selection, dependency exceptions, full-suite results and remaining blockers. No additional test cases were introduced by this maintenance.
+1. Construct broker and strategy from historical data.. [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+2. Initialize indicators and handle each strategy next callback.. [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200))
+3. Process queued orders using the current OHLC bar before the next strategy callback.. [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875))
+4. Compute equity and trade statistics.. [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [compute_stats](../src/backtesting/_stats.py) ([L37](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/_stats.py#L37))
+
+## Sequence
+
+Representative calls and data dependencies
+
+Messages represent inspected calls or explicitly labelled data dependencies. A data dependency is not an asserted direct runtime call.
+
+```mermaid
+sequenceDiagram
+  participant N0 as Backtest
+  participant N1 as Strategy
+  participant N2 as _Broker
+  participant N3 as Trade
+  participant N4 as compute_stats
+  N0->>N2: Create broker and call broker.next per bar.
+  N0->>N1: Call init once and next for each warmed-up bar.
+  N1->>N2: buy calls new_order.
+  N0->>N4: Pass equity and closed trades to compute_stats.
+```
+
+- Create broker and call broker.next per bar.: [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+- Call init once and next for each warmed-up bar.: [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+- buy calls new_order.: [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200))
+- Pass equity and closed trades to compute_stats.: [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+
+## Strengths and limits
+
+### Strengths
+
+- Compact user strategy API with built-in optimization and statistics. [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) / [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) / [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200)) / [compute_stats](../src/backtesting/_stats.py) ([L37](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/_stats.py#L37))
+
+### Limitations
+
+- The broker explicitly warns when contingent SL/TP execution is ambiguous within the entry bar. [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) / [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875))
+- The core Backtest consumes one price series frame and warns about prices above available cash and whole-unit trading. [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) / [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386))
+
+## Validation scope
+
+The linked validation and command records preserve actual historical runs and user-authorized exclusions. This source/document review does not rerun application tests, establish live trading readiness or rank benchmark performance. Current data, credential and runtime prerequisites remain material.
+
+[Repository validation](validation.md) / [Executed checks](maintenance/index.md)
+
+## Source map
+
+| Reviewed symbol/path | Inspected responsibility | Actual file SHA256 |
+|---|---|---|
+| [Backtest.run](../src/backtesting/backtesting.py) ([L1271](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1271)) | Constructs _Data, broker and strategy, runs init, advances data and calls broker.next before strategy.next, then compute_stats. | `30d8b5ed9c69e4891bd41fe6fa157dcdd9915c2aff279056c8975b0918178852` |
+| [Backtest.optimize](../src/backtesting/backtesting.py) ([L1386](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L1386)) | Validates objective and parameter constraints and selects grid or SAMBO parameter search. | `30d8b5ed9c69e4891bd41fe6fa157dcdd9915c2aff279056c8975b0918178852` |
+| [Strategy.buy](../src/backtesting/backtesting.py) ([L219](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L219)) | Validates positive size and delegates to _broker.new_order with limit, stop, SL and TP arguments. | `30d8b5ed9c69e4891bd41fe6fa157dcdd9915c2aff279056c8975b0918178852` |
+| [Strategy.next](../src/backtesting/backtesting.py) ([L200](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L200)) | User override called by the Backtest bar loop. | `30d8b5ed9c69e4891bd41fe6fa157dcdd9915c2aff279056c8975b0918178852` |
+| [_Broker.new_order](../src/backtesting/backtesting.py) ([L765](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L765)) | Constructs Order and queues it, validates bracket prices and closes existing trades in exclusive order mode. | `30d8b5ed9c69e4891bd41fe6fa157dcdd9915c2aff279056c8975b0918178852` |
+| [_Broker._process_orders](../src/backtesting/backtesting.py) ([L875](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L875)) | Uses bar open/high/low to trigger stop and limit orders, checks margin and opens/reduces trades. | `30d8b5ed9c69e4891bd41fe6fa157dcdd9915c2aff279056c8975b0918178852` |
+| [Trade.close](../src/backtesting/backtesting.py) ([L573](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/backtesting.py#L573)) | Creates an opposing Order for a rounded fraction of the trade size and inserts it into broker.orders. | `30d8b5ed9c69e4891bd41fe6fa157dcdd9915c2aff279056c8975b0918178852` |
+| [compute_stats](../src/backtesting/_stats.py) ([L37](https://github.com/alexcwyu/backtesting.py/blob/776774382657a6192d32f1030f9eaf8f0d9936e8/src/backtesting/_stats.py#L37)) | Computes drawdown, returns, risk ratios and trade statistics from equity and trades. | `4b83396a8226c93b024eb96d070ad582a22cf41487bdb5af471d0eb6e713e1b7` |
+
+## Documentation provenance
+
+Review date: 2026-10-13. Full committed source HEAD: `776774382657a6192d32f1030f9eaf8f0d9936e8`. Template version: 2. 2 source files were independently hashed for this guide.
+
+[Evidence catalog](../../docs/systems-2026-10-13/catalog.json) / [Standard template](../../docs/guidelines/APP_TEMPLATE.md)
+
+- Snapshot provenance: inventory.json full HEAD 776774382657a6192d32f1030f9eaf8f0d9936e8, branch feature/ayu_develop. Source was inspected in the existing checkout and no repository files were changed.
+- Inspected implementation bodies and existing architecture documentation. This is a representative static source audit, not a runtime or live-service validation. Credential exclusions in current validation are policy, not evidence that a live connection succeeds.
+- Inspected source files: src/backtesting/backtesting.py, src/backtesting/_stats.py
